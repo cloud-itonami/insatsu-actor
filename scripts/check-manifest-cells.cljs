@@ -1,0 +1,93 @@
+(ns check-manifest-cells
+  "actor-manifest.jsonld と src/insatsu/murakumo.cljc の cell-specs が一致するかを
+  検査する。
+
+  なぜ要るか —— test/insatsu/murakumo_test.cljc は `cell-specs` を introspect する
+  設計（『どの cell を宣言していても成り立つ』契約テスト）なので、**cell を 1 つ
+  消してもテストは緑のまま**である。テストが見ているのは cell-specs の内部整合で
+  あって、cell-specs が manifest の宣言と合っているかではない。その drift を見るのが
+  ここ。
+
+  検査する 3 つ:
+
+    1. `insatsu.murakumo/actor-did` == manifest の `@id`
+    2. manifest が宣言する cell の集合 == `cell-specs` の `:legacy-cell` の集合。
+       manifest 側の宣言は 3 箇所に分かれている:
+         - `triggers.subscribeRepos.collections`
+         - `requiredCollections`
+         - `requiredLoops`
+       cell-specs の `:legacy-cell` は、その名前の `.` を `-` に置き換えたもの。
+    3. 各 cell が `:collections` を 1 つ以上持つこと。
+
+  exit は 3 値:
+
+    0  一致した
+    1  不一致（FAIL 行を stdout に出す）
+    2  REFUSED —— 読めなかった / manifest が cell を 1 つも宣言していない。
+       **0 件を clean として返さない。** 入力が無いとき pass を返す検査は、
+       測れなかったことと問題が無かったことを区別できない。
+
+  usage:  nbb --classpath src scripts/check-manifest-cells.cljs"
+  (:require ["fs" :as fs]
+            [clojure.string :as str]
+            [insatsu.murakumo :as m]))
+
+(defn- read-manifest []
+  (try
+    (js->clj (js/JSON.parse (fs/readFileSync "actor-manifest.jsonld" "utf8")))
+    (catch :default e
+      (println "REFUSED actor-manifest.jsonld を読めない:" (.-message e))
+      (js/process.exit 2))))
+
+(defn- declared-cells
+  "manifest が宣言する cell 名を、cell-specs の :legacy-cell と同じ形（`.`→`-`）で返す。"
+  [manifest]
+  (let [collections (concat (get-in manifest ["triggers" "subscribeRepos" "collections"] [])
+                            (get manifest "requiredCollections" [])
+                            (get manifest "requiredLoops" []))]
+    (into #{} (map #(str/replace % "." "-")) collections)))
+
+(defn -main []
+  (let [manifest  (read-manifest)
+        declared  (declared-cells manifest)
+        actual    (into #{} (map :legacy-cell) (vals m/cell-specs))
+        manifest-did (get manifest "@id")
+        fails     (atom [])]
+
+    ;; evidence floor —— 何も宣言されていない manifest を「一致」と読ませない
+    (when (empty? declared)
+      (println "REFUSED manifest が cell を 1 つも宣言していない"
+               "(triggers.subscribeRepos.collections / requiredCollections / requiredLoops)")
+      (js/process.exit 2))
+    (when (empty? actual)
+      (println "REFUSED cell-specs が空")
+      (js/process.exit 2))
+
+    (println (str "SCANNED\tmanifest-cells=" (count declared)
+                  "\tcell-specs=" (count actual)))
+
+    (when-not (= manifest-did m/actor-did)
+      (swap! fails conj
+             (str "FAIL actor-did disagrees with manifest @id: "
+                  "cljc=" (pr-str m/actor-did) " manifest=" (pr-str manifest-did))))
+
+    (let [missing (sort (remove actual declared))
+          extra   (sort (remove declared actual))]
+      (when (seq missing)
+        (swap! fails conj
+               (str "FAIL declared in manifest, no cljc cell: " (pr-str missing))))
+      (when (seq extra)
+        (swap! fails conj
+               (str "FAIL cljc cell not declared in manifest: " (pr-str extra)))))
+
+    (doseq [[k spec] (sort-by key m/cell-specs)]
+      (when (empty? (:collections spec))
+        (swap! fails conj (str "FAIL cell " k " declares no :collections"))))
+
+    (if (seq @fails)
+      (do (doseq [f @fails] (println f))
+          (js/process.exit 1))
+      (do (println "OK manifest と cell-specs は一致している")
+          (js/process.exit 0)))))
+
+(-main)
