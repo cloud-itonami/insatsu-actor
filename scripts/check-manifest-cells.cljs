@@ -29,7 +29,7 @@
 
   usage:  nbb --classpath src scripts/check-manifest-cells.cljs"
   (:require ["fs" :as fs]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [insatsu.murakumo :as m]))
 
 (defn- read-manifest []
