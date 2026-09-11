@@ -3,7 +3,7 @@
 `cloud-itonami/insatsu-actor` holds the **actor identity and the pure `.cljc` planning
 boundary** for 印刷 (*insatsu*, "printing"): who this actor is
 (`actor-manifest.jsonld`, `.well-known/did.json`) and, given a set of gate attestations,
-**what records it would write** (`src/insatsu/murakumo.cljc`).
+**what records it would write** (`src/insatsu/murakumo.cljk`).
 
 It plans. **It does not print, address, frank, or post anything.** `cell-plan` returns a
 `:blocked` or `:ready` value containing `:mst/put-record` effect *descriptions*; nothing in
@@ -36,9 +36,9 @@ manifest, one namespace, its tests, and the documents you are reading.
 |---|---|
 | `actor-manifest.jsonld` | Actor definition: 4-way path-based Multi-DID composition (`network:broker`, `partner`, `lane:postal`, `lane:hybrid`), 4 capabilities, the subscribed collections, the governance block, the convo system prompt |
 | `.well-known/did.json` | A DID document for `did:web:etzhayyim.com:actor:insatsu` — see *Two identifiers* below before trusting it |
-| `src/insatsu/murakumo.cljc` | The planning boundary: `cell-specs`, `missing-gates`, `records-for`, `cell-plan`, `all-cell-plans` |
-| `test/insatsu/murakumo_test.cljc` | 9 contract tests / 70 assertions. Introspects `cell-specs` rather than hardcoding cell names, so it holds as the manifest changes — and see *What the tests do not see* |
-| `scripts/check-manifest-cells.cljs` | The drift check the contract tests structurally cannot do: manifest ↔ `cell-specs` |
+| `src/insatsu/murakumo.cljk` | The planning boundary: `cell-specs`, `missing-gates`, `records-for`, `cell-plan`, `all-cell-plans` |
+| `test/insatsu/murakumo_test.cljk` | 9 contract tests / 70 assertions. Introspects `cell-specs` rather than hardcoding cell names, so it holds as the manifest changes — and see *What the tests do not see* |
+| `scripts/check-manifest-cells.cljk` | The drift check the contract tests structurally cannot do: manifest ↔ `cell-specs` |
 | `actor-manifest.test.ts` | A vitest suite that **cannot run in this repository** — see *What does not run here* |
 | `storage-profile.edn` | Declares the `:kotoba/local-agent-kagi-chunks-v1` storage profile: local query, append-only transactions, kagi-chunked remote payload |
 | `deps.edn` | `:test` (cognitect test-runner) and `:lint` (clj-kondo) aliases |
@@ -65,19 +65,19 @@ segment, and lower-cased. The manifest's own name survives inside the record, as
 `:legacyCell "com-etzhayyim-apps-insatsu-printMailJob"`.
 
 Both names are load-bearing and neither is a typo, but a consumer that greps for the
-manifest's collection name will not find the planned record. `scripts/check-manifest-cells.cljs`
+manifest's collection name will not find the planned record. `scripts/check-manifest-cells.cljk`
 pins the pairing so it cannot drift silently.
 
 ## What the tests do not see
 
-`test/insatsu/murakumo_test.cljc` introspects `cell-specs`. That is the right design for a
+`test/insatsu/murakumo_test.cljk` introspects `cell-specs`. That is the right design for a
 contract suite — it holds whatever the manifest declares — but it means the suite is
 **green when a cell is deleted**: delete `:printmailjob` and the run goes from
 9 tests / 70 assertions to 9 tests / 57 assertions, still `0 failures, 0 errors`.
 
 The suite checks that `cell-specs` is internally consistent. It never checks that
 `cell-specs` still agrees with `actor-manifest.jsonld`. That is what
-`scripts/check-manifest-cells.cljs` is for, and step 2 of the
+`scripts/check-manifest-cells.cljk` is for, and step 2 of the
 [operator quickstart](docs/operator-quickstart.md) walks it.
 
 ## Two identifiers, one actor — and only one of them resolves
@@ -121,7 +121,7 @@ not spend the afternoon looking for the fault in `cell-specs`.
 four actor paths. There is **no `package.json`, no lockfile, and no vitest dependency** in
 this repository, so `npx vitest` has nothing to resolve. The file documents an intent; it is
 not a check anything currently performs. The assertions it makes about `@id` are covered by
-`scripts/check-manifest-cells.cljs`; the ones about `nanoid` and the four actor paths are
+`scripts/check-manifest-cells.cljk`; the ones about `nanoid` and the four actor paths are
 not covered anywhere.
 
 ## Running it

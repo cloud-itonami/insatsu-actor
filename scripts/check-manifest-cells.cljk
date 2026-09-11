@@ -1,8 +1,8 @@
 (ns check-manifest-cells
-  "actor-manifest.jsonld と src/insatsu/murakumo.cljc の cell-specs が一致するかを
+  "actor-manifest.jsonld と src/insatsu/murakumo.cljk の cell-specs が一致するかを
   検査する。
 
-  なぜ要るか —— test/insatsu/murakumo_test.cljc は `cell-specs` を introspect する
+  なぜ要るか —— test/insatsu/murakumo_test.cljk は `cell-specs` を introspect する
   設計（『どの cell を宣言していても成り立つ』契約テスト）なので、**cell を 1 つ
   消してもテストは緑のまま**である。テストが見ているのは cell-specs の内部整合で
   あって、cell-specs が manifest の宣言と合っているかではない。その drift を見るのが
@@ -27,7 +27,7 @@
        **0 件を clean として返さない。** 入力が無いとき pass を返す検査は、
        測れなかったことと問題が無かったことを区別できない。
 
-  usage:  nbb --classpath src scripts/check-manifest-cells.cljs"
+  usage:  nbb --classpath src scripts/check-manifest-cells.cljk"
   (:require ["fs" :as fs]
             [kotoba.lang.text :as str]
             [insatsu.murakumo :as m]))
