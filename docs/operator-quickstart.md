@@ -30,7 +30,7 @@ cat > /tmp/insatsu-run-tests.cljs <<'EOF'
             [insatsu.murakumo-test]))
 (t/run-tests 'insatsu.murakumo-test)
 EOF
-nbb --classpath "src:test" /tmp/insatsu-run-tests.cljs
+kbb --backend sci --classpath "src:test" /tmp/insatsu-run-tests.cljs
 ```
 
 ```
@@ -57,7 +57,7 @@ attestations, every cell must plan nothing. Restore the file
 ## 2. Check that `cell-specs` still agrees with the manifest
 
 ```bash
-nbb --classpath src scripts/check-manifest-cells.cljk
+kbb --backend sci --classpath src scripts/check-manifest-cells.cljk
 ```
 
 ```
@@ -89,7 +89,7 @@ Restore whatever you broke (`git checkout .`) before continuing.
 ## 3. Run the tests the way `deps.edn` declares
 
 ```bash
-clojure -M:test
+kbb -M:test
 ```
 
 ```
@@ -109,7 +109,7 @@ treat any single timing as expected output.
 ## 4. Lint
 
 ```bash
-clojure -M:lint
+kbb -M:lint
 ```
 
 ```
@@ -140,7 +140,7 @@ cat > /tmp/insatsu-probe.cljs <<'EOF'
                                      :request-id "req-demo"
                                      :computed-at "2026-09-01T00:00:00Z"}))))
 EOF
-nbb --classpath src /tmp/insatsu-probe.cljs
+kbb --backend sci --classpath src /tmp/insatsu-probe.cljs
 ```
 
 ```

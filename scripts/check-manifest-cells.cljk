@@ -27,7 +27,7 @@
        **0 件を clean として返さない。** 入力が無いとき pass を返す検査は、
        測れなかったことと問題が無かったことを区別できない。
 
-  usage:  nbb --classpath src scripts/check-manifest-cells.cljk"
+  usage:  kbb --backend sci --classpath src scripts/check-manifest-cells.cljk"
   (:require ["fs" :as fs]
             [kotoba.lang.text :as str]
             [insatsu.murakumo :as m]))
