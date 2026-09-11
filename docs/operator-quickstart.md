@@ -40,7 +40,7 @@ Ran 9 tests containing 70 assertions.
 0 failures, 0 errors.
 ```
 
-**Make it fail.** Empty the body of `missing-gates` in `src/insatsu/murakumo.cljc` so it
+**Make it fail.** Empty the body of `missing-gates` in `src/insatsu/murakumo.cljk` so it
 always returns `[]` — i.e. claim every gate is satisfied:
 
 ```clojure
@@ -52,12 +52,12 @@ The run becomes `14 failures, 0 errors` — 2 in `missing-gates-computes-the-dif
 this manifest declares. (The 14 is derived from the cell count, not a fixed number: it moves
 when the manifest does.) That is the fail-closed property of this actor: with no
 attestations, every cell must plan nothing. Restore the file
-(`git checkout src/insatsu/murakumo.cljc`) before continuing.
+(`git checkout src/insatsu/murakumo.cljk`) before continuing.
 
 ## 2. Check that `cell-specs` still agrees with the manifest
 
 ```bash
-nbb --classpath src scripts/check-manifest-cells.cljs
+nbb --classpath src scripts/check-manifest-cells.cljk
 ```
 
 ```
@@ -113,7 +113,7 @@ clojure -M:lint
 ```
 
 ```
-src/insatsu/murakumo.cljc:82:14: warning: unused binding input
+src/insatsu/murakumo.cljk:82:14: warning: unused binding input
 linting took …ms, errors: 0, warnings: 1
 ```
 
